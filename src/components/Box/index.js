@@ -1,12 +1,12 @@
-import styled from 'styled-components'
+import styled from "styled-components";
 
 const Box = styled.div`
   background: #ffffff;
   border-radius: 8px;
-  
+
   padding: 16px;
 
-  margin-bottom: 10px;  
+  margin-bottom: 10px;
   .boxLink {
     font-size: 14px;
     color: #2e7bb4;
@@ -21,13 +21,13 @@ const Box = styled.div`
   .subTitle {
     font-size: 18px;
     font-weight: 400;
-    margin-bottom: 20px;    
+    margin-bottom: 20px;
   }
   .smallTitle {
     margin-bottom: 20px;
     font-size: 16px;
     font-weight: 700;
-    color: #333333;    
+    color: #333333;
   }
   hr {
     margin-top: 12px;
