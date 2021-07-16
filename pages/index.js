@@ -55,31 +55,41 @@ function ProfileRelationsBox({ title, items }) {
 
 export default function Home() {
   const githubUser = "hhinke";
-  const [comunidades, setComunidades] = useState([
-    {
-      title: "Eu odeio acordar cedo",
-      image: "https://alurakut.vercel.app/capa-comunidade-01.jpg",
-    },
-  ]);
-
+  const [comunidades, setComunidades] = useState([]);
   const [seguidores, setSeguidores] = useState([]);
-  const pessoasFavoritas = [
-    "juunegreiros",
-    "omariosouto",
-    "peas",
-    "rafaballerini",
-    "marcobrunodev",
-    "felipefialho",
-  ];
+  // const pessoasFavoritas = [
+  //   "juunegreiros",
+  //   "omariosouto",
+  //   "peas",
+  //   "rafaballerini",
+  //   "marcobrunodev",
+  //   "felipefialho",
+  // ];
 
   useEffect(() => {
     fetch("https://api.github.com/users/hhinke/followers")
-      .then((data) => {
-        return data.json();
-      })
-      .then((data) => {
-        console.log(data);
-        setSeguidores(data);
+      .then((data) =>  data.json())
+      .then((data) => setSeguidores(data));
+
+    fetch("https://graphql.datocms.com/", {
+      method: "POST",
+      headers: {
+        "Authorization": "6c791c0c714b7dfc9b41e9d9a097be",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: JSON.stringify({"query": `query {
+        allCommunities {
+          title
+          id
+          imageUrl
+          creatorSlug
+        }
+      }`})
+    }).then((response) =>  response.json())
+      .then((json) => {        
+        const { allCommunities } = json.data;
+        setComunidades(allCommunities)
       });
   }, []);
 
@@ -87,14 +97,24 @@ export default function Home() {
     e.preventDefault();
 
     const formData = new FormData(e.target);
-    console.log(formData);
-
+    
     const comunidade = {
       title: formData.get("title"),
-      image: formData.get("image"),
+      imageUrl: formData.get("image"),
+      creatorSlug: githubUser,
     };
 
-    setComunidades([...comunidades, comunidade]);
+    fetch("/api/comunidades", { 
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(comunidade)
+    }).then(async (response) => {
+      const data = await response.json();     
+      comunidade.id = data.id; 
+      setComunidades([...comunidades, comunidade]);
+    });    
   }
 
   return (
@@ -107,7 +127,6 @@ export default function Home() {
         <div className="welcomeArea" style={{ gridArea: "welcomeArea" }}>
           <Box>
             <h1 className="title">Bem vindo(a)</h1>
-
             <OrkutNostalgicIconSet />
           </Box>
           <Box>
@@ -145,8 +164,8 @@ export default function Home() {
                 return (
                   index < 6 && (
                     <li key={index}>
-                      <a href={`/users/${item.title}`} key={item.title}>
-                        <img src={item.image} />
+                      <a href={`/users/${item.id}`} key={item.title}>
+                        <img src={item.imageUrl} />
                         <span>{item.title}</span>
                       </a>
                     </li>
@@ -155,7 +174,7 @@ export default function Home() {
               })}
             </ul>
           </ProfileRelationsBoxWrapper>
-          <ProfileRelationsBoxWrapper>
+          {/* <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">
               Pessoas da Comunidade ({pessoasFavoritas.length})
             </h2>
@@ -173,7 +192,7 @@ export default function Home() {
                 );
               })}
             </ul>
-          </ProfileRelationsBoxWrapper>
+          </ProfileRelationsBoxWrapper> */}
         </div>
       </MainGrid>
     </>
