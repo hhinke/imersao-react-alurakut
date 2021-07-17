@@ -1,17 +1,18 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const Box = styled.div`
-  background: #ffffff;
+  background: #FFFFFF;
   border-radius: 8px;
 
   padding: 16px;
 
+  /* CSS Pré-Pronto */
   margin-bottom: 10px;
   .boxLink {
     font-size: 14px;
-    color: #2e7bb4;
+    color: #2E7BB4;
     text-decoration: none;
-    font-weight: 600;
+    font-weight: 800;
   }
   .title {
     font-size: 32px;
@@ -28,16 +29,17 @@ const Box = styled.div`
     font-size: 16px;
     font-weight: 700;
     color: #333333;
+    margin-bottom: 20px;
   }
   hr {
     margin-top: 12px;
     margin-bottom: 8px;
     border-color: transparent;
-    border-bottom-color: #ecf2fa;
+    border-bottom-color: #ECF2FA;
   }
   input {
     width: 100%;
-    background-color: #f4f4f4;
+    background-color: #F4F4F4;
     color: #333333;
     border: 0;
     padding: 14px 16px;
@@ -51,10 +53,10 @@ const Box = styled.div`
   button {
     border: 0;
     padding: 8px 12px;
-    color: #ffffff;
+    color: #FFFFFF;
     border-radius: 10000px;
-    background-color: #6f92bb;
+    background-color: #6F92BB;
   }
-`;
+`; 
 
-export default Box;
+export default Box

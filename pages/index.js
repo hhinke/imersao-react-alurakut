@@ -7,6 +7,8 @@ import {
   AlurakutProfileSidebarMenuDefault,
 } from "../src/lib/AlurakutCommons";
 import { useState, useEffect } from "react";
+import nookies from "nookies";
+import jwt from "jsonwebtoken";
 
 function ProfileSideBar({ githubUser }) {
   return (
@@ -53,43 +55,37 @@ function ProfileRelationsBox({ title, items }) {
   );
 }
 
-export default function Home() {
-  const githubUser = "hhinke";
+export default function Home({ githubUser }) {
   const [comunidades, setComunidades] = useState([]);
   const [seguidores, setSeguidores] = useState([]);
-  // const pessoasFavoritas = [
-  //   "juunegreiros",
-  //   "omariosouto",
-  //   "peas",
-  //   "rafaballerini",
-  //   "marcobrunodev",
-  //   "felipefialho",
-  // ];
 
   useEffect(() => {
-    fetch("https://api.github.com/users/hhinke/followers")
-      .then((data) =>  data.json())
+    fetch(`https://api.github.com/users/${githubUser}/followers`)
+      .then((data) => data.json())
       .then((data) => setSeguidores(data));
 
     fetch("https://graphql.datocms.com/", {
       method: "POST",
       headers: {
-        "Authorization": "6c791c0c714b7dfc9b41e9d9a097be",
+        Authorization: "6c791c0c714b7dfc9b41e9d9a097be",
         "Content-Type": "application/json",
-        "Accept": "application/json",
+        Accept: "application/json",
       },
-      body: JSON.stringify({"query": `query {
+      body: JSON.stringify({
+        query: `query {
         allCommunities {
           title
           id
           imageUrl
           creatorSlug
         }
-      }`})
-    }).then((response) =>  response.json())
-      .then((json) => {        
+      }`,
+      }),
+    })
+      .then((response) => response.json())
+      .then((json) => {
         const { allCommunities } = json.data;
-        setComunidades(allCommunities)
+        setComunidades(allCommunities);
       });
   }, []);
 
@@ -97,24 +93,24 @@ export default function Home() {
     e.preventDefault();
 
     const formData = new FormData(e.target);
-    
+
     const comunidade = {
       title: formData.get("title"),
       imageUrl: formData.get("image"),
       creatorSlug: githubUser,
     };
 
-    fetch("/api/comunidades", { 
+    fetch("/api/comunidades", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(comunidade)
+      body: JSON.stringify(comunidade),
     }).then(async (response) => {
-      const data = await response.json();     
-      comunidade.id = data.id; 
+      const data = await response.json();
+      comunidade.id = data.id;
       setComunidades([...comunidades, comunidade]);
-    });    
+    });
   }
 
   return (
@@ -174,27 +170,40 @@ export default function Home() {
               })}
             </ul>
           </ProfileRelationsBoxWrapper>
-          {/* <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">
-              Pessoas da Comunidade ({pessoasFavoritas.length})
-            </h2>
-            <ul>
-              {pessoasFavoritas.map((item, index) => {
-                return (
-                  index < 6 && (
-                    <li key={index}>
-                      <a href={`/users/${item}`} key={item}>
-                        <img src={`https://github.com/${item}.png`} />
-                        <span>{item}</span>
-                      </a>
-                    </li>
-                  )
-                );
-              })}
-            </ul>
-          </ProfileRelationsBoxWrapper> */}
         </div>
       </MainGrid>
     </>
   );
+}
+
+export async function getServerSideProps(ctx) {
+  const cookies = nookies.get(ctx);
+  const token = cookies.USER_TOKEN;
+  const decodedToken = jwt.decode(token);
+  const githubUser = decodedToken?.githubUser;
+
+  /*const { isAuthenticated } = await fetch(
+    "https://alurakut.vercel.app/api/auth",
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  ).then((response) => response.json());*/
+
+  if (!githubUser) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
+
+  return {
+    props: {
+      githubUser,
+    }, // will be passed to the page component as props
+  };
 }
